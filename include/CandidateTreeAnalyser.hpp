@@ -76,7 +76,7 @@ namespace CosmogenicAnalyser{
   template<class Iterator>
   void CandidateTreeAnalyser<T,K>::analyse(Iterator begin, Iterator end){
     
-    std::for_each(begin, end, [this](const auto& candidateTree){analyse(candidateTree);});
+    std::for_each(begin, end, [this](const auto& candidateTree){this->analyse(candidateTree);});
     
   }
   
