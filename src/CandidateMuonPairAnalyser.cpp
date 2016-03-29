@@ -10,7 +10,7 @@ namespace CosmogenicAnalyser{
   CandidateMuonPairAnalyser::CandidateMuonPairAnalyser(TimeDivision timeDivision, const Binning& distanceBinning, const Binning& neutronMultiplicityBinning)
   :timeDivision(std::move(timeDivision)){
     
-    distributions["timeIntervals"] = TH1D("timeIntervals", "#DeltaT distribution", timeDivision.getNumberOfBins(), 0, timeDivision.getAnalysisTime());
+    distributions["timeIntervals"] = TH1D("timeIntervals", "#DeltaT distribution", timeDivision.getSpannedNumberOfBins(), 0, timeDivision.getSpannedAnalysisTime());
     distributions["onTimeDistance"] = TH1D("onTimeDistanceDistribution", "on-time distance distribution", distanceBinning.numberOfBins, distanceBinning.lowerEdge, distanceBinning.upperEdge);
     distributions["onTimeNeutronMultiplicity"] = TH1D("onTimeNeutronMultiplicity", "on-time neutron multiplicity",  neutronMultiplicityBinning.numberOfBins, neutronMultiplicityBinning.lowerEdge, neutronMultiplicityBinning.upperEdge);
     distributions["offTimeDistance"] = TH1D("offTimeDistanceDistribution", "off-time distance distribution", distanceBinning.numberOfBins, distanceBinning.lowerEdge, distanceBinning.upperEdge);
@@ -75,7 +75,7 @@ namespace CosmogenicAnalyser{
       
       TF1 fitFunction("fitFunction", [&](double* x, double* p){
 	return timebinWidth * (p[0]/lifetime*std::exp(-x[0]/lifetime) + p[1]*muonRate-std::pow(Converter::millisecondsToSeconds(p[2]),2)*x[0]);
-      }, 0, timeDivision.getAnalysisTime(), 3);
+      }, 0, timeDivision.getSpannedAnalysisTime(), 3);
       fitFunction.SetNpx(10*distributions.at("timeIntervals").GetNbinsX());
       fitFunction.SetParameters(distributions.at("timeIntervals").GetBinContent(1), numberOfNeutrinos, 0);
       fitFunction.SetParNames("Cosmogenics", "Neutrinos", "Accidental rate");

@@ -2,44 +2,83 @@
 
 namespace CosmogenicAnalyser{
   
-  TimeDivision::TimeDivision(double timebinWidth, double onTimeWindowLength, double offTimeWindowLength)
-  :timebinWidth(timebinWidth),onTimeWindowLength(onTimeWindowLength),offTimeWindowLength(offTimeWindowLength){
+  using TimeWindow = CosmogenicHunter::Bounds<double>;
+  
+  TimeDivision::TimeDivision(double timeBinWidth, TimeWindow onTimeWindow, TimeWindow offTimeWindow)
+  :timeBinWidth(timeBinWidth),onTimeWindow(std::move(onTimeWindow)),offTimeWindow(std::move(offTimeWindow)){
     
-    if(timebinWidth <  0 || onTimeWindowLength < 0 || offTimeWindowLength < 0) throw std::invalid_argument("Durations for time division cannot be negative.");
-    else if(4 * timebinWidth > onTimeWindowLength + offTimeWindowLength) throw std::invalid_argument("The time bin width must be smaller than a fourth of the analysis time.");
+    if(timeBinWidth <  0) throw std::invalid_argument(std::to_string(timeBinWidth)+"is not valid time bin width");
+    else if(getAnalysisGapLength() < 0) throw std::invalid_argument("On-time and off-time windows should not overalp.");
+    else if(4 * timeBinWidth > getAnalysisTime()) throw std::invalid_argument("The time bin width must be smaller than a fourth of the analysis time.");
     
   }
   
   double TimeDivision::getTimeBinWidth() const{
     
-    return timebinWidth;
+    return timeBinWidth;
 
+  }
+  
+  TimeWindow TimeDivision::getOnTimeWindow() const{
+    
+    return onTimeWindow;
+
+  }
+
+  TimeWindow TimeDivision::getOffTimeWindow() const{
+
+    return offTimeWindow;
+    
   }
 
   double TimeDivision::getOnTimeWindowLength() const{
     
-    return onTimeWindowLength;
+    return onTimeWindow.getWidth();
 
   }
 
   double TimeDivision::getOffTimeWindowLength() const{
 
-    return offTimeWindowLength;
+    return offTimeWindow.getWidth();
     
   }
 
   double TimeDivision::getAnalysisTime() const{
 
-    return onTimeWindowLength + offTimeWindowLength;
+    return getOnTimeWindowLength() + getOffTimeWindowLength();
     
+  }
+  
+  double TimeDivision::getSpannedAnalysisTime() const{
+    
+    return offTimeWindow.getUpEdge() - onTimeWindow.getLowEdge();
+
+  }
+  
+  double TimeDivision::getAnalysisGapLength() const{
+    
+    return offTimeWindow.getLowEdge() - onTimeWindow.getUpEdge();
+
   }
 
   unsigned TimeDivision::getNumberOfBins() const{
 
-    return getAnalysisTime() / timebinWidth;
+    return getAnalysisTime() / timeBinWidth;
     
   }
   
+  unsigned TimeDivision::getSpannedNumberOfBins() const{
+
+    return getSpannedAnalysisTime() / timeBinWidth;
+    
+  }
+  
+  double TimeDivision::getWindowsLenghtsRatio() const{
+    
+    return getOffTimeWindowLength() / getOnTimeWindowLength();
+
+  }
+
   std::ostream& operator<<(std::ostream& output, const TimeDivision& timeDivision){
     
     output<<std::setw(12)<<std::left<<"Bin width: "<<std::setw(5)<<std::left<<timeDivision.getTimeBinWidth()<<"\n"

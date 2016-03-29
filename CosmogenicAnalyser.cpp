@@ -107,7 +107,7 @@ int main(int argc, char* argv[]){
   }
   else{
     
-    CosmogenicAnalyser::TimeDivision timeDivision{timeBinWidth, onTimeWindowLength, offTimeWindowLength};
+    CosmogenicAnalyser::TimeDivision timeDivision{timeBinWidth, {0, onTimeWindowLength}, {onTimeWindowLength, onTimeWindowLength + offTimeWindowLength}};
     CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds, promptInnerVetoThreshold, bufferMuonCutParameters, reconstructionCutParameters, minChimneyInconsistencyRatio, minCosmogenicLikelihood);
     CosmogenicAnalyser::MuonShowerSelector<float> muonShowerSelector(muonDefinition, neutronMultiplicityThreshold);
     CosmogenicAnalyser::CandidateMuonPairAnalyser candidateMuonPairAnalyser(timeDivision, {20, 0, 4e3}, {50, 0, 50});
