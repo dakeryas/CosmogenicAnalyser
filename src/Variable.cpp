@@ -70,9 +70,16 @@ namespace CosmogenicAnalyser{
     output<<variable.value;
     if(variable.value != 0 && variable.error != 0){
       
-      auto formerPrecision = output.precision();
-      output<<" ("<<std::setprecision(1)<<1e2*variable.error/std::abs(variable.value)<<"%)";
-      output<<std::setprecision(formerPrecision);
+      auto relativeError = 1e2*variable.error/std::abs(variable.value);
+      if(relativeError > 1e3) output<<" (inf)";//1000% error is meaningless
+      else{
+	
+	auto formerPrecision = output.precision();
+	output<<" ("<<std::setprecision(1)<<relativeError<<"%)";
+	output<<std::setprecision(formerPrecision);
+	
+      }
+      
       
     }
     return output;
