@@ -2,8 +2,6 @@
 
 namespace CosmogenicAnalyser{
   
-  using TimeWindow = CosmogenicHunter::Bounds<double>;
-  
   TimeDivision::TimeDivision(double timeBinWidth, TimeWindow onTimeWindow, TimeWindow offTimeWindow)
   :timeBinWidth(timeBinWidth),onTimeWindow(std::move(onTimeWindow)),offTimeWindow(std::move(offTimeWindow)){
     
@@ -19,13 +17,13 @@ namespace CosmogenicAnalyser{
 
   }
   
-  TimeWindow TimeDivision::getOnTimeWindow() const{
+  const TimeWindow& TimeDivision::getOnTimeWindow() const{
     
     return onTimeWindow;
 
   }
 
-  TimeWindow TimeDivision::getOffTimeWindow() const{
+  const TimeWindow& TimeDivision::getOffTimeWindow() const{
 
     return offTimeWindow;
     
@@ -33,13 +31,13 @@ namespace CosmogenicAnalyser{
 
   double TimeDivision::getOnTimeWindowLength() const{
     
-    return onTimeWindow.getWidth();
+    return onTimeWindow.getLength();
 
   }
 
   double TimeDivision::getOffTimeWindowLength() const{
 
-    return offTimeWindow.getWidth();
+    return offTimeWindow.getLength();
     
   }
 
@@ -51,13 +49,13 @@ namespace CosmogenicAnalyser{
   
   double TimeDivision::getSpannedAnalysisTime() const{
     
-    return offTimeWindow.getUpEdge() - onTimeWindow.getLowEdge();
+    return offTimeWindow.getEndTime() - onTimeWindow.getStartTime();
 
   }
   
   double TimeDivision::getAnalysisGapLength() const{
     
-    return offTimeWindow.getLowEdge() - onTimeWindow.getUpEdge();
+    return offTimeWindow.getStartTime() - onTimeWindow.getEndTime();
 
   }
 

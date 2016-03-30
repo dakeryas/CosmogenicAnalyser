@@ -1,13 +1,11 @@
 #ifndef COSMOGENIC_ANALYSER_TIME_DIVISION_H
 #define COSMOGENIC_ANALYSER_TIME_DIVISION_H
 
-#include "Cosmogenic/Bounds.hpp"
+#include "TimeWindow.hpp"
 
 namespace CosmogenicAnalyser{
   
   class TimeDivision{
-    
-    using TimeWindow = CosmogenicHunter::Bounds<double>;
     
     double timeBinWidth;
     TimeWindow onTimeWindow;
@@ -17,8 +15,8 @@ namespace CosmogenicAnalyser{
   public:
     TimeDivision(double timeBinWidth, TimeWindow onTimeWindow, TimeWindow offTimeWindow);
     double getTimeBinWidth() const;
-    TimeWindow getOnTimeWindow() const;
-    TimeWindow getOffTimeWindow() const;
+    const TimeWindow& getOnTimeWindow() const;
+    const TimeWindow& getOffTimeWindow() const;
     double getOnTimeWindowLength() const;
     double getOffTimeWindowLength() const;
     double getAnalysisTime() const;

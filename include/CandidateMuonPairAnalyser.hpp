@@ -39,13 +39,13 @@ namespace CosmogenicAnalyser{
     auto timeIntervalValue = Converter::nanosecondsToMilliseconds(CosmogenicHunter::getTimeCorrelation(prompt, muonShower.getInitiator()));
     distributions["timeIntervals"].Fill(timeIntervalValue);
     
-    if(timeDivision.getOnTimeWindow().contains(timeIntervalValue)){
+    if(timeDivision.getOnTimeWindow().covers(timeIntervalValue)){
       
       distributions["onTimeDistance"].Fill(distance);
       distributions["onTimeNeutronMultiplicity"].Fill(muonShower.getNumberOfFollowers());
       
     }
-    else if(timeDivision.getOffTimeWindow().contains(timeIntervalValue)){
+    else if(timeDivision.getOffTimeWindow().covers(timeIntervalValue)){
       
       distributions["offTimeDistance"].Fill(distance);
       distributions["offTimeNeutronMultiplicity"].Fill(muonShower.getNumberOfFollowers());
