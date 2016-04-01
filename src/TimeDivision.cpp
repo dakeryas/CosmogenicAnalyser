@@ -71,7 +71,7 @@ namespace CosmogenicAnalyser{
     
   }
   
-  double TimeDivision::getWindowsLenghtsRatio() const{
+  double TimeDivision::getWindowsLengthsRatio() const{
     
     return getOffTimeWindowLength() / getOnTimeWindowLength();
 
