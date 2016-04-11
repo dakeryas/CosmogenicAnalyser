@@ -15,17 +15,17 @@ namespace CosmogenicAnalyser{
     PairSelector<T> pairSelector;
     MuonShowerSelector<K> muonShowerSelector;
     
-    CandidateMuonPairAnalyser candidateMuonPairAnalyser;
+    CandidateMuonPairAnalyser<T> candidateMuonPairAnalyser;
     MuonShowerAnalyser muonShowerAnalyser;
     TH1F muonSpectrum;
     double liveTime;
     
   public:  
-    CandidateTreeAnalyser(PairSelector<T> pairSelector, MuonShowerSelector<K> muonShowerSelector, CandidateMuonPairAnalyser candidateMuonPairAnalyser, MuonShowerAnalyser muonShowerAnalyser);
+    CandidateTreeAnalyser(PairSelector<T> pairSelector, MuonShowerSelector<K> muonShowerSelector, CandidateMuonPairAnalyser<T> candidateMuonPairAnalyser, MuonShowerAnalyser muonShowerAnalyser);
     void analyse(const CosmogenicHunter::CandidateTree<T,K>& candidateTree);
-    template<class Iterator>
-    void analyse(Iterator begin, Iterator end);
-    void reset();
+    template<class CandidateTreeIterator>
+    void analyse(CandidateTreeIterator begin, CandidateTreeIterator end);
+    void resetDistributions();
     const std::unordered_map<std::string, TH1D>& getCandidateMuonPairDistributions() const;
     std::unordered_map<std::string, TH1D> getBackgroundSubtractedCandidateMuonPairDistributions() const;
     const std::unordered_map<std::string, TH1F>& getNeutronDistributions() const;
@@ -38,7 +38,7 @@ namespace CosmogenicAnalyser{
   };
   
   template <class T, class K>
-  CandidateTreeAnalyser<T,K>::CandidateTreeAnalyser(PairSelector<T> pairSelector, MuonShowerSelector<K> muonShowerSelector, CandidateMuonPairAnalyser candidateMuonPairAnalyser, MuonShowerAnalyser muonShowerAnalyser)
+  CandidateTreeAnalyser<T,K>::CandidateTreeAnalyser(PairSelector<T> pairSelector, MuonShowerSelector<K> muonShowerSelector, CandidateMuonPairAnalyser<T> candidateMuonPairAnalyser, MuonShowerAnalyser muonShowerAnalyser)
   :pairSelector(std::move(pairSelector)),muonShowerSelector(std::move(muonShowerSelector)),candidateMuonPairAnalyser(std::move(candidateMuonPairAnalyser)),muonShowerAnalyser(std::move(muonShowerAnalyser)),
   muonSpectrum("muonSpectrum", "muonSpectrum", 80, 0, 900),
   liveTime(){
@@ -52,13 +52,14 @@ namespace CosmogenicAnalyser{
     
     if(pairSelector.tag(candidateTree.getCandidatePair())){
     
+      candidateMuonPairAnalyser.setPrompt(candidateTree.getCandidatePair().getPrompt());
       muonShowerAnalyser.resetIdentifiers();
       
       for(const auto& muonShower : candidateTree.getMuonShowers()){
 	
 	if(muonShowerSelector.tag(muonShower)){
 	  
-	  candidateMuonPairAnalyser.analyse(candidateTree.getCandidatePair().getPrompt(), muonShower);
+	  candidateMuonPairAnalyser.analyse(muonShower);
 	  muonSpectrum.Fill(muonShowerSelector.getVisibleEnergy(muonShower.getInitiator()));
 	  muonShowerAnalyser.analyse(muonShower);
 	  
@@ -66,6 +67,7 @@ namespace CosmogenicAnalyser{
 	
       }
       
+      candidateMuonPairAnalyser.updateDistributions();
       liveTime += candidateTree.getMuonShowers().getLength();
       
     }
@@ -73,18 +75,18 @@ namespace CosmogenicAnalyser{
   }
   
   template <class T, class K>
-  template<class Iterator>
-  void CandidateTreeAnalyser<T,K>::analyse(Iterator begin, Iterator end){
+  template<class CandidateTreeIterator>
+  void CandidateTreeAnalyser<T,K>::analyse(CandidateTreeIterator begin, CandidateTreeIterator end){
     
     std::for_each(begin, end, [this](const auto& candidateTree){this->analyse(candidateTree);});
     
   }
   
   template <class T, class K>
-  void CandidateTreeAnalyser<T,K>::reset(){
+  void CandidateTreeAnalyser<T,K>::resetDistributions(){
     
-    candidateMuonPairAnalyser.reset();
-    muonShowerAnalyser.reset();
+    candidateMuonPairAnalyser.resetDistributions();
+    muonShowerAnalyser.resetDistributions();
     muonSpectrum.Reset();
     liveTime = 0;
     
@@ -135,7 +137,7 @@ namespace CosmogenicAnalyser{
   template <class T, class K>
   double CandidateTreeAnalyser<T,K>::getNumberOfCandidates() const{
     
-    return Converter::nanosecondsToSeconds(liveTime) / Converter::millisecondsToSeconds(candidateMuonPairAnalyser.getTimeDivision().getAnalysisTime());
+    return Converter::nanosecondsToSeconds(liveTime) / Converter::millisecondsToSeconds(candidateMuonPairAnalyser.getSpannedAnalysisDuration());
     
   }
   
@@ -147,7 +149,7 @@ namespace CosmogenicAnalyser{
   }
   
   template <class T, class K>
-  std::ostream& operator<<(std::ostream& output, CandidateTreeAnalyser<T,K> candidateTreeAnalyser){
+  std::ostream& operator<<(std::ostream& output, const CandidateTreeAnalyser<T,K>& candidateTreeAnalyser){
     
     TablePrinter tablePrinter(output, '-', "|", 1, "Live time (s)", "Number of muons", "Muon rate (Hz)", "Number of candidates");
     tablePrinter.setPrecision(0, 0, 2, 0);

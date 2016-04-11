@@ -22,7 +22,7 @@ namespace CosmogenicAnalyser{
     void analyse(const CosmogenicHunter::Shower<CosmogenicHunter::Muon<K>, CosmogenicHunter::Single<T>>& muonShower);
     const TH1F& getDistribution(const std::string& distributionName) const;
     const std::unordered_map<std::string, TH1F>& getDistributions() const;
-    void reset();
+    void resetDistributions();
     void resetIdentifiers();
     
   };

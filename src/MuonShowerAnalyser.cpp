@@ -23,7 +23,7 @@ namespace CosmogenicAnalyser{
     
   }
   
-  void MuonShowerAnalyser::reset(){
+  void MuonShowerAnalyser::resetDistributions(){
     
     for(auto& histPair : distributions) histPair.second.Reset();
     
