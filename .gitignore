@@ -1,0 +1,11 @@
+.gitignore
+CosmogenicAnalyser
+*.[oda]
+*.kdev*
+*.kdev4
+*.bin
+*.root
+*.C
+*~
+
+
