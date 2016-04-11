@@ -59,7 +59,7 @@ namespace CosmogenicAnalyser{
   CandidateMuonPairAnalyser<T>::CandidateMuonPairAnalyser(double likelihoodCut, const TimeDivision& timeDivision, const Binning& distanceBinning, const Binning& neutronMultiplicityBinning, const Binning& energyBinning)
   :likelihoodCut(likelihoodCut),likelihoodWindows(timeDivision.getEqualLengthWindows<MaxWindow<double>>()),prompt(nullptr){
     
-    if(likelihoodWindows.size() < 2) throw std::runtime_error("The time division must bear at least one off-time window.");
+    if(likelihoodWindows.size() < 2) throw std::runtime_error("The time division must contain at least one off-time window.");
     
     distributions["timeIntervals"] = TH1D("timeIntervals", "#DeltaT distribution", timeDivision.getSpannedNumberOfBins(), 0, timeDivision.getSpannedAnalysisTime());
     distributions["onTimeDistance"] = TH1D("onTimeDistanceDistribution", "on-time distance distribution", distanceBinning.numberOfBins, distanceBinning.lowerEdge, distanceBinning.upperEdge);
@@ -147,7 +147,7 @@ namespace CosmogenicAnalyser{
   void CandidateMuonPairAnalyser<T>::setTimeDivision(const TimeDivision& timeDivision){
     
     likelihoodWindows = timeDivision.getEqualLengthWindows<MaxWindow<double>>();
-    if(likelihoodWindows.size() < 2) throw std::runtime_error("The time division must bear at least one off-time window.");
+    if(likelihoodWindows.size() < 2) throw std::runtime_error("The time division must contain at least one off-time window.");
     resetDistributions();
     
   }

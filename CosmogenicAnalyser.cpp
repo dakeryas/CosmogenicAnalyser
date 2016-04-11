@@ -41,7 +41,8 @@ int main(int argc, char* argv[]){
  
   boost::filesystem::path targetPath, outputPath;
   std::string regexString;
-  double timeBinWidth, onTimeWindowLength, offTimeWindowLength;
+  double timeBinWidth;
+  CosmogenicAnalyser::TimeWindow onTimeWindow, offTimeWindow;
   CosmogenicHunter::MuonDefinition<float> muonDefinition;
   int neutronMultiplicityThreshold;
   CosmogenicHunter::Bounds<float> promptEnergyBounds;
@@ -57,8 +58,8 @@ int main(int argc, char* argv[]){
   ("target,t", bpo::value<boost::filesystem::path>(&targetPath)->required(), "Path of the candidate tree to analyse")
   ("output,o", bpo::value<boost::filesystem::path>(&outputPath)->required(), "Output file where to save the distributions")
   ("time-bin-width", bpo::value<double>(&timeBinWidth)->default_value(50), "Time bin width [ms]")
-  ("ontime-window-length", bpo::value<double>(&onTimeWindowLength)->required(), "On-time window length [ms]")
-  ("offtime-window-length", bpo::value<double>(&offTimeWindowLength)->required(), "Off-time window length [ms]")
+  ("ontime-window", bpo::value<CosmogenicAnalyser::TimeWindow>(&onTimeWindow)->required(), "On-time window (start : end) [ms]")
+  ("offtime-window", bpo::value<CosmogenicAnalyser::TimeWindow>(&offTimeWindow)->required(), "Off-time window (start : end) [ms]")
   ("muon-definition", bpo::value<CosmogenicHunter::MuonDefinition<float>>(&muonDefinition)->required(), "Muon definition parameters (Inner Veto charge threshold [DUQ] : visible energy threshold [MeV] : visible energy to Inner Detector charge conversion factor [DUQ/MeV])")
   ("neutron-min-multiplicity,n", bpo::value<int>(&neutronMultiplicityThreshold)->default_value(0), "Threshold for the number of neutrons following a muon")
   ("prompt-energy-bounds", bpo::value<CosmogenicHunter::Bounds<float>>(&promptEnergyBounds)->default_value(CosmogenicHunter::Bounds<float>{0, 1e2}), "Bounds (':' separator) on the prompt's energy [MeV]")
@@ -78,7 +79,7 @@ int main(int argc, char* argv[]){
     
     if(arguments.count("help") || argc == 1){
       
-      std::cout<<optionDescription<<std::endl;
+      std::cerr<<optionDescription<<std::endl;
       return 0;
       
     }
@@ -86,9 +87,9 @@ int main(int argc, char* argv[]){
     bpo::notify(arguments);//the arguments are ready to be used
     
   }
-  catch(bpo::error& e){
+  catch(bpo::error& error){
     
-    std::cout<<e.what()<<std::endl;
+    std::cerr<<error.what()<<std::endl;
     return 1;
     
   }
@@ -101,20 +102,30 @@ int main(int argc, char* argv[]){
   
   if(!boost::filesystem::is_regular_file(targetPath)){
     
-    std::cout<<"Error: "<<targetPath<<" is not a regular file"<<std::endl;
+    std::cerr<<"Error: "<<targetPath<<" is not a regular file"<<std::endl;
     return 1;
     
   }
   else{
     
-    CosmogenicAnalyser::TimeDivision timeDivision{timeBinWidth, {0, onTimeWindowLength}, {onTimeWindowLength, onTimeWindowLength + offTimeWindowLength}};
-    CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds, promptInnerVetoThreshold, bufferMuonCutParameters, reconstructionCutParameters, minChimneyInconsistencyRatio, minCosmogenicLikelihood);
-    CosmogenicAnalyser::MuonShowerSelector<float> muonShowerSelector(muonDefinition, neutronMultiplicityThreshold);
-    CosmogenicAnalyser::CandidateMuonPairAnalyser<float> candidateMuonPairAnalyser(minCosmogenicLikelihood, timeDivision, {20, 0, 4e3}, {50, 0, 50}, {14, 0, 14});
-    CosmogenicAnalyser::MuonShowerAnalyser muonShowerAnalyser({100, 0, 10}, {25, 0, 4000});
-    CosmogenicAnalyser::CandidateTreeAnalyser<float,float> candidateTreeAnalyser(pairSelector, muonShowerSelector, candidateMuonPairAnalyser, muonShowerAnalyser);
-    
-    CosmogenicAnalyser::process(targetPath, outputPath, candidateTreeAnalyser);
+    try{
+      
+      CosmogenicAnalyser::TimeDivision timeDivision{timeBinWidth, onTimeWindow, offTimeWindow};
+      CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds, promptInnerVetoThreshold, bufferMuonCutParameters, reconstructionCutParameters, minChimneyInconsistencyRatio, minCosmogenicLikelihood);
+      CosmogenicAnalyser::MuonShowerSelector<float> muonShowerSelector(muonDefinition, neutronMultiplicityThreshold);
+      CosmogenicAnalyser::CandidateMuonPairAnalyser<float> candidateMuonPairAnalyser(minCosmogenicLikelihood, timeDivision, {20, 0, 4e3}, {50, 0, 50}, {14, 0, 14});
+      CosmogenicAnalyser::MuonShowerAnalyser muonShowerAnalyser({100, 0, 10}, {25, 0, 4000});
+      CosmogenicAnalyser::CandidateTreeAnalyser<float,float> candidateTreeAnalyser(pairSelector, muonShowerSelector, candidateMuonPairAnalyser, muonShowerAnalyser);
+      
+      CosmogenicAnalyser::process(targetPath, outputPath, candidateTreeAnalyser);
+      
+    }
+    catch(std::exception& error){
+      
+      std::cerr<<"Error: "<<error.what()<<std::endl;
+      return 1;
+      
+    }
     
   }
   
