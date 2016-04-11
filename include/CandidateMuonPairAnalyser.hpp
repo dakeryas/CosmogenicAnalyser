@@ -93,7 +93,6 @@ namespace CosmogenicAnalyser{
     
   }
   
-  
   template <class T>
   double CandidateMuonPairAnalyser<T>::getSpannedAnalysisDuration() const{
     
