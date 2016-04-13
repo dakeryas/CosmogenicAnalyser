@@ -33,7 +33,7 @@ namespace CosmogenicAnalyser{
   template <class T>
   bool PairSelector<T>::tag(const CosmogenicHunter::CandidatePair<T>& candidatePair) const{
     
-    return candidatePair.getPrompt().hasVisibleEnergyWithin(promptEnergyBounds) && candidatePair.isCosmogenic(minCosmogenicLikelihood) && !(candidatePair.isVetoed(promptInnerVetoThreshold) || candidatePair.isPoorlyReconstructed(reconstructionCutParameters) || candidatePair.isBufferMuon(bufferMuonCutParameters) || candidatePair.isStoppingMuon(minChimneyInconsistencyRatio));
+    return candidatePair.getPrompt().hasVisibleEnergyWithin(promptEnergyBounds) && !(candidatePair.isVetoed(promptInnerVetoThreshold) || candidatePair.isPoorlyReconstructed(reconstructionCutParameters) || candidatePair.isBufferMuon(bufferMuonCutParameters) || candidatePair.isStoppingMuon(minChimneyInconsistencyRatio));
     
   }
   
