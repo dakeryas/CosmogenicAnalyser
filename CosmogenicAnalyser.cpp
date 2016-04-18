@@ -1,5 +1,6 @@
 #include <fstream>
 #include "boost/program_options.hpp"
+#include "RootObjectExtractor.hpp"
 #include "CandidateTreeAnalyser.hpp"
 #include "InputIterator.hpp"
 
@@ -7,6 +8,20 @@ namespace bpo = boost::program_options;
 namespace CsHt = CosmogenicHunter;
 
 namespace CosmogenicAnalyser{
+  
+  std::unordered_map<std::string, TH1D> extractDensityProbabilities(const boost::filesystem::path& densitiesFilePath){
+    
+    TFile densitiesFile(densitiesFilePath.c_str());
+    std::unordered_map<std::string, TH1D> densityProbabilities = {
+       {"cosmogenic_distance", RootObjectExtractor<TH1D>::extract("muondist_sig", densitiesFile)},
+       {"cosmogenic_neutron", RootObjectExtractor<TH1D>::extract("numNeutrons_sig", densitiesFile)},
+       {"background_distance", RootObjectExtractor<TH1D>::extract("muondist_bkg", densitiesFile)},
+       {"background_neutron", RootObjectExtractor<TH1D>::extract("numNeutrons_bkg", densitiesFile)}
+    };
+    
+    return densityProbabilities;
+    
+  }
   
   template <class T, class K>
   void analyseFile(const boost::filesystem::path& targetPath, CosmogenicAnalyser::CandidateTreeAnalyser<T,K>& candidateTreeAnalyser){
@@ -39,8 +54,8 @@ namespace CosmogenicAnalyser{
 
 int main(int argc, char* argv[]){
  
-  boost::filesystem::path targetPath, outputPath;
-  std::string regexString;
+  boost::filesystem::path targetPath, outputPath, densitiesPath;
+  double cosmogenicProbability;
   double timeBinWidth;
   CosmogenicAnalyser::TimeWindow onTimeWindow, offTimeWindow;
   CosmogenicHunter::MuonDefinition<float> muonDefinition;
@@ -57,6 +72,8 @@ int main(int argc, char* argv[]){
   ("help,h", "Display this help message")
   ("target,t", bpo::value<boost::filesystem::path>(&targetPath)->required(), "Path of the candidate tree to analyse")
   ("output,o", bpo::value<boost::filesystem::path>(&outputPath)->required(), "Output file where to save the distributions")
+  ("cosmogenic-densities,d", bpo::value<boost::filesystem::path>(&densitiesPath)->required(), "Path of the file containing the cosmogenic probability densities")
+  ("cosmogenic-probability,p", bpo::value<double>(&cosmogenicProbability)->required(), "Probability to be a cosmogenic event")
   ("time-bin-width", bpo::value<double>(&timeBinWidth)->default_value(50), "Time bin width [ms]")
   ("ontime-window", bpo::value<CosmogenicAnalyser::TimeWindow>(&onTimeWindow)->required(), "On-time window (start : end) [ms]")
   ("offtime-window", bpo::value<CosmogenicAnalyser::TimeWindow>(&offTimeWindow)->required(), "Off-time window (start : end) [ms]")
@@ -106,14 +123,21 @@ int main(int argc, char* argv[]){
     return 1;
     
   }
+  else if(!boost::filesystem::is_regular_file(densitiesPath)){
+    
+    std::cerr<<"Error: "<<densitiesPath<<" is not a regular file"<<std::endl;
+    return 1;
+    
+  }
   else{
     
     try{
       
-      CosmogenicAnalyser::TimeDivision timeDivision{timeBinWidth, onTimeWindow, offTimeWindow};
       CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds, promptInnerVetoThreshold, bufferMuonCutParameters, reconstructionCutParameters, minChimneyInconsistencyRatio, minCosmogenicLikelihood);
       CosmogenicAnalyser::MuonShowerSelector<float> muonShowerSelector(muonDefinition, neutronMultiplicityThreshold);
-      CosmogenicAnalyser::CandidateMuonPairAnalyser<float> candidateMuonPairAnalyser(minCosmogenicLikelihood, timeDivision, {20, 0, 4e3}, {50, 0, 50}, {14, 0, 14});
+      CosmogenicAnalyser::LikelihoodComputer likelihoodComputer(CosmogenicAnalyser::extractDensityProbabilities(densitiesPath), cosmogenicProbability);
+      CosmogenicAnalyser::TimeDivision timeDivision{timeBinWidth, onTimeWindow, offTimeWindow};
+      CosmogenicAnalyser::CandidateMuonPairAnalyser<float> candidateMuonPairAnalyser(likelihoodComputer, minCosmogenicLikelihood, timeDivision, {20, 0, 4e3}, {50, 0, 50}, {14, 0, 14});
       CosmogenicAnalyser::MuonShowerAnalyser muonShowerAnalyser({100, 0, 10}, {25, 0, 4000});
       CosmogenicAnalyser::CandidateTreeAnalyser<float,float> candidateTreeAnalyser(pairSelector, muonShowerSelector, candidateMuonPairAnalyser, muonShowerAnalyser);
       

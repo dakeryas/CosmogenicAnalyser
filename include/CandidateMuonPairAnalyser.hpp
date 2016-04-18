@@ -1,11 +1,12 @@
 #ifndef COSMOGENIC_ANALYSER_CANDIDATE_MUON_PAIR_ANALYSER_H
 #define COSMOGENIC_ANALYSER_CANDIDATE_MUON_PAIR_ANALYSER_H
 
-#include <unordered_map>
-#include "TH1D.h"
 #include "TF1.h"
 #include "TFitResult.h"
 #include "TCanvas.h"
+#include "Cosmogenic/Muon.hpp"
+#include "Cosmogenic/Single.hpp"
+#include "Cosmogenic/Shower.hpp"
 #include "LikelihoodComputer.hpp"
 #include "MaxWindow.hpp"
 #include "Converter.hpp"
@@ -27,7 +28,7 @@ namespace CosmogenicAnalyser{
     void updateSpectra();
     
   public:  
-    CandidateMuonPairAnalyser(double likelihoodCut, const TimeDivision& timeDivision, const Binning& distanceBinning, const Binning& neutronMultiplicityBinning, const Binning& energyBinning);
+    CandidateMuonPairAnalyser(LikelihoodComputer likelihoodComputer, double likelihoodCut, const TimeDivision& timeDivision, const Binning& distanceBinning, const Binning& neutronMultiplicityBinning, const Binning& energyBinning);
     double getLikeLihoodCut() const;
     double getOnTimeDuration() const;
     double getOffTimeDuration() const;
@@ -56,8 +57,8 @@ namespace CosmogenicAnalyser{
   }
   
   template <class T>
-  CandidateMuonPairAnalyser<T>::CandidateMuonPairAnalyser(double likelihoodCut, const TimeDivision& timeDivision, const Binning& distanceBinning, const Binning& neutronMultiplicityBinning, const Binning& energyBinning)
-  :likelihoodCut(likelihoodCut),likelihoodWindows(timeDivision.getEqualLengthWindows<MaxWindow<double>>()),prompt(nullptr){
+  CandidateMuonPairAnalyser<T>::CandidateMuonPairAnalyser(LikelihoodComputer likelihoodComputer, double likelihoodCut, const TimeDivision& timeDivision, const Binning& distanceBinning, const Binning& neutronMultiplicityBinning, const Binning& energyBinning)
+  :likelihoodComputer(std::move(likelihoodComputer)),likelihoodCut(likelihoodCut),likelihoodWindows(timeDivision.getEqualLengthWindows<MaxWindow<double>>()),prompt(nullptr){
     
     if(likelihoodWindows.size() < 2) throw std::runtime_error("The time division must contain at least one off-time window.");
     
@@ -169,8 +170,8 @@ namespace CosmogenicAnalyser{
     auto itWindow = std::find_if(likelihoodWindows.begin(), likelihoodWindows.end(), [&](const auto& window){return window.covers(timeInterval);});
     if(itWindow != likelihoodWindows.end()){
       
-      itWindow->updateValue(likelihoodComputer.getLikelihood(*prompt, muonShower));
       auto distance = CosmogenicHunter::getDistanceBetween(*prompt, muonShower.getInitiator());
+      itWindow->updateValue(likelihoodComputer.getLikelihood(distance, muonShower.getNumberOfFollowers()));
       
       if(itWindow == likelihoodWindows.begin()){
 	
