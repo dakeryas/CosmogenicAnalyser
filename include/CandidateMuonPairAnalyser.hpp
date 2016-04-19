@@ -205,7 +205,7 @@ namespace CosmogenicAnalyser{
   template <class T>
   void CandidateMuonPairAnalyser<T>::resetDistributions(){
     
-    for(auto& histPair : distributions) histPair.second.Reset();
+    for(auto& hist : distributions) hist.Reset();
     prompt = nullptr;
     
   }
