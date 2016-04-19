@@ -26,8 +26,8 @@ namespace CosmogenicAnalyser{
     template<class CandidateTreeIterator>
     void analyse(CandidateTreeIterator begin, CandidateTreeIterator end);
     void resetDistributions();
-    const std::unordered_map<std::string, TH1D>& getCandidateMuonPairDistributions() const;
-    std::unordered_map<std::string, TH1D> getBackgroundSubtractedCandidateMuonPairDistributions() const;
+    const std::vector<TH1D>& getCandidateMuonPairDistributions() const;
+    std::vector<TH1D> getBackgroundSubtractedCandidateMuonPairDistributions() const;
     const std::unordered_map<std::string, TH1F>& getNeutronDistributions() const;
     const TH1F& getMuonSpectrum() const;
     double getLiveTime() const;
@@ -93,7 +93,7 @@ namespace CosmogenicAnalyser{
   }
   
   template <class T, class K>
-  const std::unordered_map<std::string, TH1D>& CandidateTreeAnalyser<T,K>::getCandidateMuonPairDistributions() const{
+  const std::vector<TH1D>& CandidateTreeAnalyser<T,K>::getCandidateMuonPairDistributions() const{
     
     return candidateMuonPairAnalyser.getDistributions();
     
@@ -107,7 +107,7 @@ namespace CosmogenicAnalyser{
   }
   
   template <class T, class K>
-  std::unordered_map<std::string, TH1D> CandidateTreeAnalyser<T,K>::getBackgroundSubtractedCandidateMuonPairDistributions() const{
+  std::vector<TH1D> CandidateTreeAnalyser<T,K>::getBackgroundSubtractedCandidateMuonPairDistributions() const{
     
     return candidateMuonPairAnalyser.getBackgroundSubtractedDistributions();
     

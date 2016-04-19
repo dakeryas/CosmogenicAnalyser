@@ -43,10 +43,10 @@ namespace CosmogenicAnalyser{
     std::cout<<fitResults<<std::endl;
     
     TFile outputFile(outputPath.c_str(), "recreate");
-    for(const auto& pairDistribution : candidateTreeAnalyser.getCandidateMuonPairDistributions()) pairDistribution.second.Write(pairDistribution.first.c_str());
+    for(const auto& distribution : candidateTreeAnalyser.getCandidateMuonPairDistributions()) distribution.Write(distribution.GetName());
     candidateTreeAnalyser.getMuonSpectrum().Write();
     for(const auto& pairDistribution : candidateTreeAnalyser.getNeutronDistributions()) pairDistribution.second.Write(pairDistribution.first.c_str());
-    for(const auto& pairDistribution : candidateTreeAnalyser.getBackgroundSubtractedCandidateMuonPairDistributions()) pairDistribution.second.Write(pairDistribution.first.c_str());
+    for(const auto& distribution : candidateTreeAnalyser.getBackgroundSubtractedCandidateMuonPairDistributions()) distribution.Write(distribution.GetName());
     
   }
   
