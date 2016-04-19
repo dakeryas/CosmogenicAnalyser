@@ -2,22 +2,24 @@
 
 namespace CosmogenicAnalyser{
 
-  MuonShowerAnalyser::MuonShowerAnalyser(const Binning& energyBinning, const Binning& distanceBinning){
+  MuonShowerAnalyser::MuonShowerAnalyser(const Binning& distanceBinning, const Binning& energyBinning):distributions(2){
     
-    distributions["neutronEnergySpectrum"] = TH1F("neutronEnergySpectrum", "neutron energy spectrum", energyBinning.numberOfBins, energyBinning.lowerEdge, energyBinning.upperEdge);
-    distributions["neutronDistanceToTrack"] = TH1F("neutronDistanceToTrack", "neutron distance to track", distanceBinning.numberOfBins, distanceBinning.lowerEdge, distanceBinning.upperEdge);
+    distributions[0] = TH1F("neutronDistanceToTrack", "neutron distance to track", distanceBinning.numberOfBins, distanceBinning.lowerEdge, distanceBinning.upperEdge);
+    distributions[1] = TH1F("neutronEnergySpectrum", "neutron energy spectrum", energyBinning.numberOfBins, energyBinning.lowerEdge, energyBinning.upperEdge);
     
-    for(auto& histPair : distributions) histPair.second.Sumw2();
+    for(auto& hist : distributions) hist.Sumw2();
     
   }
   
   const TH1F& MuonShowerAnalyser::getDistribution(const std::string& distributionName) const{
     
-    return distributions.at(distributionName);
+    auto it = std::find_if(distributions.begin(), distributions.end(), [&](const auto& distribution){return distribution.GetName() == distributionName;});
+    if(it != distributions.end()) return *it;
+    else throw std::runtime_error(distributionName+" is not a known distribution.");
     
   }
   
-  const std::unordered_map<std::string, TH1F>& MuonShowerAnalyser::getDistributions() const{
+  const std::vector<TH1F>& MuonShowerAnalyser::getDistributions() const{
     
     return distributions;
     
@@ -25,7 +27,7 @@ namespace CosmogenicAnalyser{
   
   void MuonShowerAnalyser::resetDistributions(){
     
-    for(auto& histPair : distributions) histPair.second.Reset();
+    for(auto& hist : distributions) hist.Reset();
     
   }
   

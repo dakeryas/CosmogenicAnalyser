@@ -28,7 +28,7 @@ namespace CosmogenicAnalyser{
     void resetDistributions();
     const std::vector<TH1D>& getCandidateMuonPairDistributions() const;
     std::vector<TH1D> getBackgroundSubtractedCandidateMuonPairDistributions() const;
-    const std::unordered_map<std::string, TH1F>& getNeutronDistributions() const;
+    const std::vector<TH1F>& getNeutronDistributions() const;
     const TH1F& getMuonSpectrum() const;
     double getLiveTime() const;
     double getMuonRate() const;
@@ -100,7 +100,7 @@ namespace CosmogenicAnalyser{
   }
   
   template <class T, class K>
-  const std::unordered_map<std::string, TH1F>& CandidateTreeAnalyser<T,K>::getNeutronDistributions() const{
+  const std::vector<TH1F>& CandidateTreeAnalyser<T,K>::getNeutronDistributions() const{
     
     return muonShowerAnalyser.getDistributions();
     
