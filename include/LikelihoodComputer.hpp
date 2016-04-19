@@ -8,11 +8,11 @@ namespace CosmogenicAnalyser{
   
   class LikelihoodComputer{
     
-    std::unordered_map<std::string, TH1D> pobabilityDensities;
+    std::vector<TH1D> pobabilityDensities;
     double lithiumProbability;
     
   public:
-    LikelihoodComputer(std::unordered_map<std::string, TH1D> pobabilityDensities, double lithiumProbability);
+    LikelihoodComputer(std::unordered_map<std::string, TH1D> pobabilityDensityMap, double lithiumProbability);
     double getLikelihood(double distanceToTrack, unsigned numberOfFollowers);
     
   };
