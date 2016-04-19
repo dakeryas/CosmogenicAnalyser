@@ -1,9 +1,7 @@
 #ifndef COSMOGENIC_ANALYSER_NEUTRON_DISTRIBUTIONS_H
 #define COSMOGENIC_ANALYSER_NEUTRON_DISTRIBUTIONS_H
 
-#include "boost/filesystem.hpp"
 #include "TH1F.h"
-#include "TFile.h"
 #include "Cosmogenic/Muon.hpp"
 #include "Cosmogenic/Single.hpp"
 #include "Cosmogenic/Shower.hpp"

@@ -3,17 +3,28 @@
 
 namespace CosmogenicAnalyser{
   
+  LikelihoodComputer::LikelihoodComputer(const boost::filesystem::path& densitiesFilePath, double lithiumProbability)
+  :pobabilityDensities(4),lithiumProbability(lithiumProbability){
+
+    TFile densitiesFile(densitiesFilePath.c_str());
+    pobabilityDensities[0] = RootObjectExtractor<TH1D>::extract("muondist_sig", densitiesFile);
+    pobabilityDensities[1] = RootObjectExtractor<TH1D>::extract("numNeutrons_sig", densitiesFile);
+    pobabilityDensities[2] = RootObjectExtractor<TH1D>::extract("muondist_bkg", densitiesFile);
+    pobabilityDensities[3] = RootObjectExtractor<TH1D>::extract("numNeutrons_bkg", densitiesFile);
+    
+  }
+  
   LikelihoodComputer::LikelihoodComputer(std::unordered_map<std::string, TH1D> pobabilityDensityMap, double lithiumProbability)
   :pobabilityDensities(pobabilityDensityMap.size()),lithiumProbability(lithiumProbability){
 
-    for(const auto& pobabilityDensityName : {"cosmogenic_distance", "cosmogenic_neutron", "background_distance", "background_neutron"})
+    for(const auto& pobabilityDensityName : {"muondist_sig", "numNeutrons_sig", "muondist_bkg", "numNeutrons_bkg"})
       if(pobabilityDensityMap.find(pobabilityDensityName) == pobabilityDensityMap.end())
 	throw std::invalid_argument("Required probability density '"+std::string(pobabilityDensityName)+"' cannot be found.");
       
-    pobabilityDensities[0] = pobabilityDensityMap["cosmogenic_distance"];
-    pobabilityDensities[1] = pobabilityDensityMap["cosmogenic_neutron"];
-    pobabilityDensities[2] = pobabilityDensityMap["background_distance"];
-    pobabilityDensities[3] = pobabilityDensityMap["background_neutron"];
+    pobabilityDensities[0] = pobabilityDensityMap["muondist_sig"];
+    pobabilityDensities[1] = pobabilityDensityMap["numNeutrons_sig"];
+    pobabilityDensities[2] = pobabilityDensityMap["muondist_bkg"];
+    pobabilityDensities[3] = pobabilityDensityMap["numNeutrons_bkg"];
     
   }
 
