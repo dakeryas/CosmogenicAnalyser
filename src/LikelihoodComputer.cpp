@@ -1,5 +1,4 @@
 #include "LikelihoodComputer.hpp"
-#include <iostream>
 
 namespace CosmogenicAnalyser{
   
@@ -14,20 +13,6 @@ namespace CosmogenicAnalyser{
     
   }
   
-  LikelihoodComputer::LikelihoodComputer(std::unordered_map<std::string, TH1D> pobabilityDensityMap, double lithiumProbability)
-  :pobabilityDensities(pobabilityDensityMap.size()),lithiumProbability(lithiumProbability){
-
-    for(const auto& pobabilityDensityName : {"muondist_sig", "numNeutrons_sig", "muondist_bkg", "numNeutrons_bkg"})
-      if(pobabilityDensityMap.find(pobabilityDensityName) == pobabilityDensityMap.end())
-	throw std::invalid_argument("Required probability density '"+std::string(pobabilityDensityName)+"' cannot be found.");
-      
-    pobabilityDensities[0] = pobabilityDensityMap["muondist_sig"];
-    pobabilityDensities[1] = pobabilityDensityMap["numNeutrons_sig"];
-    pobabilityDensities[2] = pobabilityDensityMap["muondist_bkg"];
-    pobabilityDensities[3] = pobabilityDensityMap["numNeutrons_bkg"];
-    
-  }
-
   double LikelihoodComputer::getLikelihood(double distanceToTrack, unsigned numberOfFollowers){
     
     int cosmogenicNeutronBinNumber = pobabilityDensities[1].FindFixBin(numberOfFollowers);

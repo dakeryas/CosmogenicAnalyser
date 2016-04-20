@@ -13,7 +13,6 @@
 #include "TimeDivision.hpp"
 #include "Binning.hpp"
 #include "TimeIntervalsFitResults.hpp"
-#include "Utility.hpp"
 
 namespace CosmogenicAnalyser{
   
