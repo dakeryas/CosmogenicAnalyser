@@ -2,6 +2,8 @@
 #define COSMOGENIC_ANALYSER_UTILITY_H
 
 #include <iomanip>
+#include <algorithm>
+#include <stdexcept>
 
 namespace CosmogenicAnalyser{
 
@@ -17,6 +19,22 @@ namespace CosmogenicAnalyser{
       if(precision > -1) output<<std::fixed<<std::setprecision(precision)<<object;
       else output<<object;
       return output.str();
+      
+    }
+    
+    template <class DistributionIterator>
+    auto& getDistribution(const std::string& distributionName, DistributionIterator distributionBegin, DistributionIterator distributionEnd){
+      
+      auto it = std::find_if(distributionBegin, distributionEnd, [&](const auto& distribution){return distribution.GetName() == distributionName;});
+      if(it != distributionEnd) return *it;
+      else throw std::runtime_error(distributionName+" cannot be found.");
+      
+    }
+    
+    template <class DistributionContainer>
+    auto& getDistribution(const std::string& distributionName, const DistributionContainer& distributions){
+      
+      return getDistribution(distributionName, std::begin(distributions), std::end(distributions));
       
     }
     
