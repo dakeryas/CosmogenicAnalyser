@@ -2,7 +2,7 @@
 #define COSMOGENIC_ANALYSER_ROOT_OBJECT_EXTRACTOR_H
 
 #include "TFile.h"
-#include <iostream>
+#include <stdexcept>
 
 namespace CosmogenicAnalyser{
   
