@@ -13,6 +13,7 @@
 #include "TimeDivision.hpp"
 #include "Binning.hpp"
 #include "TimeIntervalsFitResults.hpp"
+#include "Utility.hpp"
 
 namespace CosmogenicAnalyser{
   
@@ -110,9 +111,7 @@ namespace CosmogenicAnalyser{
   template <class T>
   const TH1D& CandidateMuonPairAnalyser<T>::getDistribution(const std::string& distributionName) const{
     
-    auto it = std::find_if(distributions.begin(), distributions.end(), [&](const auto& distribution){return distribution.GetName() == distributionName;});
-    if(it != distributions.end()) return *it;
-    else throw std::runtime_error(distributionName+" is not a known distribution.");
+    return Utility::getDistribution(distributionName, distributions);
     
   }
   
