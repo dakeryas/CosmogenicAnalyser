@@ -1,4 +1,5 @@
 #include "Variable.hpp"
+#include "boost/io/ios_state.hpp"
 
 namespace CosmogenicAnalyser{
 
@@ -74,9 +75,8 @@ namespace CosmogenicAnalyser{
       if(relativeError > 1e3) output<<" (inf)";//1000% error is meaningless
       else{
 	
-	auto formerPrecision = output.precision();
-	output<<" ("<<std::setprecision(1)<<relativeError<<"%)";
-	output<<std::setprecision(formerPrecision);
+	boost::io::ios_base_all_saver streamStateSaver(output);//save precision and flags (restored on destruction)
+	output<<" ("<<std::setprecision(1)<<std::fixed<<relativeError<<"%)";
 	
       }
       
