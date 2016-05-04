@@ -11,7 +11,7 @@ namespace CosmogenicAnalyser{
   
   class LikelihoodComputer{
     
-    std::vector<TH1D> pobabilityDensities;
+    std::vector<TH1D> probabilityDensities;
     double lithiumProbability;
     
   public:
@@ -26,12 +26,12 @@ namespace CosmogenicAnalyser{
   
   template <class DensityIterator>
   LikelihoodComputer::LikelihoodComputer(DensityIterator densityBegin, DensityIterator densityEnd, double lithiumProbability)
-  :pobabilityDensities(4),lithiumProbability(lithiumProbability){
+  :probabilityDensities(4),lithiumProbability(lithiumProbability){
 
-    pobabilityDensities[0] = Utility::getDistribution("muondist_sig", densityBegin, densityEnd);
-    pobabilityDensities[1] = Utility::getDistribution("numNeutrons_sig", densityBegin, densityEnd);
-    pobabilityDensities[2] = Utility::getDistribution("muondist_bkg", densityBegin, densityEnd);
-    pobabilityDensities[3] = Utility::getDistribution("numNeutrons_bkg", densityBegin, densityEnd);
+    probabilityDensities[0] = Utility::getDistribution("muondist_sig", densityBegin, densityEnd);
+    probabilityDensities[1] = Utility::getDistribution("numNeutrons_sig", densityBegin, densityEnd);
+    probabilityDensities[2] = Utility::getDistribution("muondist_bkg", densityBegin, densityEnd);
+    probabilityDensities[3] = Utility::getDistribution("numNeutrons_bkg", densityBegin, densityEnd);
     
   }
   
