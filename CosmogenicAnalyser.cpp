@@ -120,7 +120,7 @@ int main(int argc, char* argv[]){
       
       CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds, promptInnerVetoThreshold, bufferMuonCutParameters, reconstructionCutParameters, minChimneyInconsistencyRatio, minCosmogenicLikelihood);
       CosmogenicAnalyser::MuonShowerSelector<float> muonShowerSelector(muonDefinition, neutronMultiplicityThreshold);
-      CosmogenicAnalyser::LikelihoodComputer likelihoodComputer(densitiesPath, cosmogenicProbability);
+      CosmogenicAnalyser::LikelihoodComputer likelihoodComputer(cosmogenicProbability, densitiesPath);
       CosmogenicAnalyser::TimeDivision timeDivision{timeBinWidth, onTimeWindow, offTimeWindow};
       CosmogenicAnalyser::CandidateMuonPairAnalyser<float> candidateMuonPairAnalyser(likelihoodComputer, minCosmogenicLikelihood, timeDivision, {20, 0, 4e3}, {50, 0, 50}, {14, 0, 14});
       CosmogenicAnalyser::MuonShowerAnalyser muonShowerAnalyser({25, 0, 4000}, {100, 0, 10});

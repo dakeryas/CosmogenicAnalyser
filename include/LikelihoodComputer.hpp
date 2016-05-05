@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 #include "boost/filesystem.hpp"
-#include "TH1D.h"
+#include "TH1.h"
 #include "RootObjectExtractor.hpp"
 #include "Utility.hpp"
 
@@ -11,33 +11,38 @@ namespace CosmogenicAnalyser{
   
   class LikelihoodComputer{
     
-    std::vector<TH1D> probabilityDensities;
     double lithiumProbability;
+    std::vector<std::unique_ptr<TH1>> probabilityDensities;
     
   public:
-    LikelihoodComputer(const boost::filesystem::path& densitiesFilePath, double lithiumProbability);
+    LikelihoodComputer(double lithiumProbability, const boost::filesystem::path& densitiesFilePath);
     template <class DensityIterator>
-    LikelihoodComputer(DensityIterator densityBegin, DensityIterator densityEnd, double lithiumProbability);
+    LikelihoodComputer(double lithiumProbability, DensityIterator densityBegin, DensityIterator densityEnd);
     template <class DensityContainer>
-    LikelihoodComputer(const DensityContainer& probabilityDensities, double lithiumProbability);
+    LikelihoodComputer(double lithiumProbability, const DensityContainer& probabilityDensities);
+    LikelihoodComputer(const LikelihoodComputer& other);
+    LikelihoodComputer(LikelihoodComputer&& other) = default;
+    LikelihoodComputer& operator = (LikelihoodComputer other);
+    LikelihoodComputer& operator = (LikelihoodComputer&& other) = default;
+    virtual ~LikelihoodComputer() = default;
     double getLikelihood(double distanceToTrack, unsigned numberOfFollowers);
     
   };
   
   template <class DensityIterator>
-  LikelihoodComputer::LikelihoodComputer(DensityIterator densityBegin, DensityIterator densityEnd, double lithiumProbability)
-  :probabilityDensities(4),lithiumProbability(lithiumProbability){
+  LikelihoodComputer::LikelihoodComputer(double lithiumProbability, DensityIterator densityBegin, DensityIterator densityEnd)
+  :lithiumProbability(lithiumProbability){
 
-    probabilityDensities[0] = Utility::getDistribution("muondist_sig", densityBegin, densityEnd);
-    probabilityDensities[1] = Utility::getDistribution("numNeutrons_sig", densityBegin, densityEnd);
-    probabilityDensities[2] = Utility::getDistribution("muondist_bkg", densityBegin, densityEnd);
-    probabilityDensities[3] = Utility::getDistribution("numNeutrons_bkg", densityBegin, densityEnd);
+    probabilityDensities.emplace_back(std::make_unique<typename DensityIterator::value_type>(Utility::getDistribution("muondist_sig", densityBegin, densityEnd)));
+    probabilityDensities.emplace_back(std::make_unique<typename DensityIterator::value_type>(Utility::getDistribution("numNeutrons_sig", densityBegin, densityEnd)));
+    probabilityDensities.emplace_back(std::make_unique<typename DensityIterator::value_type>(Utility::getDistribution("muondist_bkg", densityBegin, densityEnd)));
+    probabilityDensities.emplace_back(std::make_unique<typename DensityIterator::value_type>(Utility::getDistribution("numNeutrons_bkg", densityBegin, densityEnd)));
     
   }
   
   template <class DensityContainer>
-  LikelihoodComputer::LikelihoodComputer(const DensityContainer& probabilityDensities, double lithiumProbability)
-  :LikelihoodComputer(std::begin(probabilityDensities), std::end(probabilityDensities), lithiumProbability){
+  LikelihoodComputer::LikelihoodComputer(double lithiumProbability, const DensityContainer& probabilityDensities)
+  :LikelihoodComputer(lithiumProbability, std::begin(probabilityDensities), std::end(probabilityDensities)){
     
   }
   
