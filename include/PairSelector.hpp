@@ -16,17 +16,16 @@ namespace CosmogenicAnalyser{
     CosmogenicHunter::BufferMuonCutParameters<T> bufferMuonCutParameters;
     CosmogenicHunter::ReconstructionCutParameters<T> reconstructionCutParameters;
     T minChimneyInconsistencyRatio;
-    T minCosmogenicLikelihood;
     
   public:
-    PairSelector(CosmogenicHunter::Bounds<T> promptEnergyBounds, CosmogenicHunter::InnerVetoThreshold<T> promptInnerVetoThreshold, CosmogenicHunter::BufferMuonCutParameters<T> bufferMuonCutParameters, CosmogenicHunter::ReconstructionCutParameters<T> reconstructionCutParameters, T minChimneyInconsistencyRatio, T minCosmogenicLikelihood);
+    PairSelector(CosmogenicHunter::Bounds<T> promptEnergyBounds, CosmogenicHunter::InnerVetoThreshold<T> promptInnerVetoThreshold, CosmogenicHunter::BufferMuonCutParameters<T> bufferMuonCutParameters, CosmogenicHunter::ReconstructionCutParameters<T> reconstructionCutParameters, T minChimneyInconsistencyRatio);
     bool tag(const CosmogenicHunter::CandidatePair<T>& candidatePair) const;
     
   };
   
   template <class T>
-  PairSelector<T>::PairSelector(CosmogenicHunter::Bounds<T> promptEnergyBounds, CosmogenicHunter::InnerVetoThreshold<T> promptInnerVetoThreshold, CosmogenicHunter::BufferMuonCutParameters<T> bufferMuonCutParameters, CosmogenicHunter::ReconstructionCutParameters<T> reconstructionCutParameters, T minChimneyInconsistencyRatio,T minCosmogenicLikelihood)
-  :promptEnergyBounds(std::move(promptEnergyBounds)),promptInnerVetoThreshold(std::move(promptInnerVetoThreshold)),bufferMuonCutParameters(std::move(bufferMuonCutParameters)),reconstructionCutParameters(std::move(reconstructionCutParameters)),minChimneyInconsistencyRatio(minChimneyInconsistencyRatio),minCosmogenicLikelihood(minCosmogenicLikelihood){
+  PairSelector<T>::PairSelector(CosmogenicHunter::Bounds<T> promptEnergyBounds, CosmogenicHunter::InnerVetoThreshold<T> promptInnerVetoThreshold, CosmogenicHunter::BufferMuonCutParameters<T> bufferMuonCutParameters, CosmogenicHunter::ReconstructionCutParameters<T> reconstructionCutParameters, T minChimneyInconsistencyRatio)
+  :promptEnergyBounds(std::move(promptEnergyBounds)),promptInnerVetoThreshold(std::move(promptInnerVetoThreshold)),bufferMuonCutParameters(std::move(bufferMuonCutParameters)),reconstructionCutParameters(std::move(reconstructionCutParameters)),minChimneyInconsistencyRatio(minChimneyInconsistencyRatio){
   
   }
   

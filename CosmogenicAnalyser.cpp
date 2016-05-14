@@ -118,7 +118,7 @@ int main(int argc, char* argv[]){
     
     try{
       
-      CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds, promptInnerVetoThreshold, bufferMuonCutParameters, reconstructionCutParameters, minChimneyInconsistencyRatio, minCosmogenicLikelihood);
+      CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds, promptInnerVetoThreshold, bufferMuonCutParameters, reconstructionCutParameters, minChimneyInconsistencyRatio);
       CosmogenicAnalyser::MuonShowerSelector<float> muonShowerSelector(muonDefinition, neutronMultiplicityThreshold);
       CosmogenicAnalyser::LikelihoodComputer likelihoodComputer(cosmogenicProbability, densitiesPath);
       CosmogenicAnalyser::TimeDivision timeDivision{timeBinWidth, onTimeWindow, offTimeWindow};
