@@ -1,5 +1,9 @@
 #include <fstream>
 #include "boost/program_options.hpp"
+#include "Cosmogenic/InnerVeto.hpp"
+#include "Cosmogenic/BufferMuonVeto.hpp"
+#include "Cosmogenic/ReconstructionVeto.hpp"
+#include "Cosmogenic/ChimneyVeto.hpp"
 #include "CandidateTreeAnalyser.hpp"
 #include "InputIterator.hpp"
 
@@ -65,11 +69,11 @@ int main(int argc, char* argv[]){
   ("muon-definition", bpo::value<CosmogenicHunter::MuonDefinition<float>>(&muonDefinition)->required(), "Muon definition parameters (Inner Veto charge threshold [DUQ] : visible energy threshold [MeV] : visible energy to Inner Detector charge conversion factor [DUQ/MeV])")
   ("neutron-min-multiplicity,n", bpo::value<int>(&neutronMultiplicityThreshold)->default_value(0), "Threshold for the number of neutrons following a muon")
   ("prompt-energy-bounds", bpo::value<CosmogenicHunter::Bounds<float>>(&promptEnergyBounds)->default_value(CosmogenicHunter::Bounds<float>{0, 1e2}), "Bounds (':' separator) on the prompt's energy [MeV]")
-  ("prompt-IV-cuts", bpo::value<CosmogenicHunter::InnerVeto<float>>(&promptInnerVeto)->required(), "Inner Veto rejection parameters (max charge [DUQ] : max number of hit PMTs : time bounds [ns] : space correlation [mm])")
-  ("prompt-buffer-cuts", bpo::value<CosmogenicHunter::BufferMuonVeto<float>>(&bufferMuonVeto)->required(), "Buffer stopping muon rejection parameters (constant [MeV^exponent] : exponent)")
+  ("prompt-IV-cuts", bpo::value<CosmogenicHunter::InnerVeto<float>>(&promptInnerVeto), "Inner Veto rejection parameters (max charge [DUQ] : max number of hit PMTs : time bounds [ns] : space correlation [mm])")
+  ("prompt-buffer-cuts", bpo::value<CosmogenicHunter::BufferMuonVeto<float>>(&bufferMuonVeto), "Buffer stopping muon rejection parameters (constant [MeV^exponent] : exponent)")
   ("prompt-min-cosmogenic-likelihood,l", bpo::value<float>(&minCosmogenicLikelihood)->default_value(0), "Threshold for the cosmogenic likelihood of a prompt")
-  ("delayed-reconstruction-cuts", bpo::value<CosmogenicHunter::ReconstructionVeto<float>>(&reconstructionVeto)->required(), "Poor reconstruction rejection parameters (min energy [MeV] : characteristic inconsistency)")
-  ("pair-min-chimney-inconsistency", bpo::value<CosmogenicHunter::ChimneyVeto<float>>(&chimneyVeto)->required(), "Threshold for the chimney inconsistency ratio of a pair");
+  ("delayed-reconstruction-cuts", bpo::value<CosmogenicHunter::ReconstructionVeto<float>>(&reconstructionVeto), "Poor reconstruction rejection parameters (min energy [MeV] : characteristic inconsistency)")
+  ("pair-min-chimney-inconsistency", bpo::value<CosmogenicHunter::ChimneyVeto<float>>(&chimneyVeto), "Threshold for the chimney inconsistency ratio of a pair");
   
   bpo::positional_options_description positionalOptions;//to use arguments without "--"
   positionalOptions.add("target", 1);
@@ -118,13 +122,18 @@ int main(int argc, char* argv[]){
     
     try{
       
-      CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds, promptInnerVeto, bufferMuonVeto, reconstructionVeto, chimneyVeto);
+      CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds);
+      if(arguments.count("prompt-IV-cuts")) pairSelector.emplaceVeto<CosmogenicHunter::InnerVeto<float>>(std::move(promptInnerVeto));
+      if(arguments.count("prompt-buffer-cuts")) pairSelector.emplaceVeto<CosmogenicHunter::BufferMuonVeto<float>>(std::move(bufferMuonVeto));
+      if(arguments.count("delayed-reconstruction-cuts")) pairSelector.emplaceVeto<CosmogenicHunter::ReconstructionVeto<float>>(std::move(reconstructionVeto));
+      if(arguments.count("pair-min-chimney-inconsistency")) pairSelector.emplaceVeto<CosmogenicHunter::ChimneyVeto<float>>(std::move(chimneyVeto));
+      
       CosmogenicAnalyser::MuonShowerSelector<float> muonShowerSelector(muonDefinition, neutronMultiplicityThreshold);
       CosmogenicAnalyser::LikelihoodComputer likelihoodComputer(cosmogenicProbability, densitiesPath);
       CosmogenicAnalyser::TimeDivision timeDivision{timeBinWidth, onTimeWindow, offTimeWindow};
       CosmogenicAnalyser::CandidateMuonPairAnalyser<float> candidateMuonPairAnalyser(likelihoodComputer, minCosmogenicLikelihood, timeDivision, {20, 0, 4e3}, {50, 0, 50}, {14, 0, 14});
       CosmogenicAnalyser::MuonShowerAnalyser muonShowerAnalyser({25, 0, 4000}, {100, 0, 10});
-      CosmogenicAnalyser::CandidateTreeAnalyser<float,float> candidateTreeAnalyser(pairSelector, muonShowerSelector, candidateMuonPairAnalyser, muonShowerAnalyser);
+      CosmogenicAnalyser::CandidateTreeAnalyser<float,float> candidateTreeAnalyser(std::move(pairSelector), std::move(muonShowerSelector), std::move(candidateMuonPairAnalyser), std::move(muonShowerAnalyser));
       
       CosmogenicAnalyser::process(targetPath, outputPath, candidateTreeAnalyser);
       
