@@ -46,9 +46,9 @@ int main(int argc, char* argv[]){
   CosmogenicHunter::MuonDefinition<float> muonDefinition;
   int neutronMultiplicityThreshold;
   CosmogenicHunter::Bounds<float> promptEnergyBounds;
-  CosmogenicHunter::InnerVetoThreshold<float> promptInnerVetoThreshold;
-  CosmogenicHunter::ReconstructionCutParameters<float> reconstructionCutParameters;
-  CosmogenicHunter::BufferMuonCutParameters<float> bufferMuonCutParameters;
+  CosmogenicHunter::InnerVeto<float> promptInnerVeto;
+  CosmogenicHunter::ReconstructionVeto<float> reconstructionVeto;
+  CosmogenicHunter::BufferMuonVeto<float> bufferMuonVeto;
   CosmogenicHunter::ChimneyVeto<float> chimneyVeto; //CPS_prompt + CPS_delayed
   float minCosmogenicLikelihood;
   
@@ -65,10 +65,10 @@ int main(int argc, char* argv[]){
   ("muon-definition", bpo::value<CosmogenicHunter::MuonDefinition<float>>(&muonDefinition)->required(), "Muon definition parameters (Inner Veto charge threshold [DUQ] : visible energy threshold [MeV] : visible energy to Inner Detector charge conversion factor [DUQ/MeV])")
   ("neutron-min-multiplicity,n", bpo::value<int>(&neutronMultiplicityThreshold)->default_value(0), "Threshold for the number of neutrons following a muon")
   ("prompt-energy-bounds", bpo::value<CosmogenicHunter::Bounds<float>>(&promptEnergyBounds)->default_value(CosmogenicHunter::Bounds<float>{0, 1e2}), "Bounds (':' separator) on the prompt's energy [MeV]")
-  ("prompt-IV-cuts", bpo::value<CosmogenicHunter::InnerVetoThreshold<float>>(&promptInnerVetoThreshold)->required(), "Inner Veto rejection parameters (max charge [DUQ] : max number of hit PMTs : time bounds [ns] : space correlation [mm])")
-  ("prompt-buffer-cuts", bpo::value<CosmogenicHunter::BufferMuonCutParameters<float>>(&bufferMuonCutParameters)->required(), "Buffer stopping muon rejection parameters (constant [MeV^exponent] : exponent)")
+  ("prompt-IV-cuts", bpo::value<CosmogenicHunter::InnerVeto<float>>(&promptInnerVeto)->required(), "Inner Veto rejection parameters (max charge [DUQ] : max number of hit PMTs : time bounds [ns] : space correlation [mm])")
+  ("prompt-buffer-cuts", bpo::value<CosmogenicHunter::BufferMuonVeto<float>>(&bufferMuonVeto)->required(), "Buffer stopping muon rejection parameters (constant [MeV^exponent] : exponent)")
   ("prompt-min-cosmogenic-likelihood,l", bpo::value<float>(&minCosmogenicLikelihood)->default_value(0), "Threshold for the cosmogenic likelihood of a prompt")
-  ("delayed-reconstruction-cuts", bpo::value<CosmogenicHunter::ReconstructionCutParameters<float>>(&reconstructionCutParameters)->required(), "Poor reconstruction rejection parameters (min energy [MeV] : characteristic inconsistency)")
+  ("delayed-reconstruction-cuts", bpo::value<CosmogenicHunter::ReconstructionVeto<float>>(&reconstructionVeto)->required(), "Poor reconstruction rejection parameters (min energy [MeV] : characteristic inconsistency)")
   ("pair-min-chimney-inconsistency", bpo::value<CosmogenicHunter::ChimneyVeto<float>>(&chimneyVeto)->required(), "Threshold for the chimney inconsistency ratio of a pair");
   
   bpo::positional_options_description positionalOptions;//to use arguments without "--"
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]){
     
     try{
       
-      CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds, promptInnerVetoThreshold, bufferMuonCutParameters, reconstructionCutParameters, chimneyVeto);
+      CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds, promptInnerVeto, bufferMuonVeto, reconstructionVeto, chimneyVeto);
       CosmogenicAnalyser::MuonShowerSelector<float> muonShowerSelector(muonDefinition, neutronMultiplicityThreshold);
       CosmogenicAnalyser::LikelihoodComputer likelihoodComputer(cosmogenicProbability, densitiesPath);
       CosmogenicAnalyser::TimeDivision timeDivision{timeBinWidth, onTimeWindow, offTimeWindow};
