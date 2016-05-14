@@ -49,8 +49,8 @@ int main(int argc, char* argv[]){
   CosmogenicHunter::InnerVetoThreshold<float> promptInnerVetoThreshold;
   CosmogenicHunter::ReconstructionCutParameters<float> reconstructionCutParameters;
   CosmogenicHunter::BufferMuonCutParameters<float> bufferMuonCutParameters;
+  CosmogenicHunter::ChimneyVeto<float> chimneyVeto; //CPS_prompt + CPS_delayed
   float minCosmogenicLikelihood;
-  float minChimneyInconsistencyRatio; //CPS_prompt + CPS_delayed
   
   bpo::options_description optionDescription("CosmogenicAnalyser usage");
   optionDescription.add_options()
@@ -69,7 +69,7 @@ int main(int argc, char* argv[]){
   ("prompt-buffer-cuts", bpo::value<CosmogenicHunter::BufferMuonCutParameters<float>>(&bufferMuonCutParameters)->required(), "Buffer stopping muon rejection parameters (constant [MeV^exponent] : exponent)")
   ("prompt-min-cosmogenic-likelihood,l", bpo::value<float>(&minCosmogenicLikelihood)->default_value(0), "Threshold for the cosmogenic likelihood of a prompt")
   ("delayed-reconstruction-cuts", bpo::value<CosmogenicHunter::ReconstructionCutParameters<float>>(&reconstructionCutParameters)->required(), "Poor reconstruction rejection parameters (min energy [MeV] : characteristic inconsistency)")
-  ("pair-min-chimney-inconsistency", bpo::value<float>(&minChimneyInconsistencyRatio)->default_value(2), "Threshold for the chimney inconsistency ratio of a pair");
+  ("pair-min-chimney-inconsistency", bpo::value<CosmogenicHunter::ChimneyVeto<float>>(&chimneyVeto)->required(), "Threshold for the chimney inconsistency ratio of a pair");
   
   bpo::positional_options_description positionalOptions;//to use arguments without "--"
   positionalOptions.add("target", 1);
@@ -118,7 +118,7 @@ int main(int argc, char* argv[]){
     
     try{
       
-      CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds, promptInnerVetoThreshold, bufferMuonCutParameters, reconstructionCutParameters, minChimneyInconsistencyRatio);
+      CosmogenicAnalyser::PairSelector<float> pairSelector(promptEnergyBounds, promptInnerVetoThreshold, bufferMuonCutParameters, reconstructionCutParameters, chimneyVeto);
       CosmogenicAnalyser::MuonShowerSelector<float> muonShowerSelector(muonDefinition, neutronMultiplicityThreshold);
       CosmogenicAnalyser::LikelihoodComputer likelihoodComputer(cosmogenicProbability, densitiesPath);
       CosmogenicAnalyser::TimeDivision timeDivision{timeBinWidth, onTimeWindow, offTimeWindow};

@@ -5,6 +5,7 @@
 #include "Cosmogenic/InnerVetoThreshold.hpp"
 #include "Cosmogenic/ReconstructionCutParameters.hpp"
 #include "Cosmogenic/BufferMuonCutParameters.hpp"
+#include "Cosmogenic/ChimneyVeto.hpp"
 
 namespace CosmogenicAnalyser{
 
@@ -15,24 +16,24 @@ namespace CosmogenicAnalyser{
     CosmogenicHunter::InnerVetoThreshold<T> promptInnerVetoThreshold;
     CosmogenicHunter::BufferMuonCutParameters<T> bufferMuonCutParameters;
     CosmogenicHunter::ReconstructionCutParameters<T> reconstructionCutParameters;
-    T minChimneyInconsistencyRatio;
+    CosmogenicHunter::ChimneyVeto<T> chimneyVeto;
     
   public:
-    PairSelector(CosmogenicHunter::Bounds<T> promptEnergyBounds, CosmogenicHunter::InnerVetoThreshold<T> promptInnerVetoThreshold, CosmogenicHunter::BufferMuonCutParameters<T> bufferMuonCutParameters, CosmogenicHunter::ReconstructionCutParameters<T> reconstructionCutParameters, T minChimneyInconsistencyRatio);
+    PairSelector(CosmogenicHunter::Bounds<T> promptEnergyBounds, CosmogenicHunter::InnerVetoThreshold<T> promptInnerVetoThreshold, CosmogenicHunter::BufferMuonCutParameters<T> bufferMuonCutParameters, CosmogenicHunter::ReconstructionCutParameters<T> reconstructionCutParameters, CosmogenicHunter::ChimneyVeto<T> chimneyVeto);
     bool tag(const CosmogenicHunter::CandidatePair<T>& candidatePair) const;
     
   };
   
   template <class T>
-  PairSelector<T>::PairSelector(CosmogenicHunter::Bounds<T> promptEnergyBounds, CosmogenicHunter::InnerVetoThreshold<T> promptInnerVetoThreshold, CosmogenicHunter::BufferMuonCutParameters<T> bufferMuonCutParameters, CosmogenicHunter::ReconstructionCutParameters<T> reconstructionCutParameters, T minChimneyInconsistencyRatio)
-  :promptEnergyBounds(std::move(promptEnergyBounds)),promptInnerVetoThreshold(std::move(promptInnerVetoThreshold)),bufferMuonCutParameters(std::move(bufferMuonCutParameters)),reconstructionCutParameters(std::move(reconstructionCutParameters)),minChimneyInconsistencyRatio(minChimneyInconsistencyRatio){
+  PairSelector<T>::PairSelector(CosmogenicHunter::Bounds<T> promptEnergyBounds, CosmogenicHunter::InnerVetoThreshold<T> promptInnerVetoThreshold, CosmogenicHunter::BufferMuonCutParameters<T> bufferMuonCutParameters, CosmogenicHunter::ReconstructionCutParameters<T> reconstructionCutParameters, CosmogenicHunter::ChimneyVeto<T> chimneyVeto)
+  :promptEnergyBounds(std::move(promptEnergyBounds)),promptInnerVetoThreshold(std::move(promptInnerVetoThreshold)),bufferMuonCutParameters(std::move(bufferMuonCutParameters)),reconstructionCutParameters(std::move(reconstructionCutParameters)),chimneyVeto(std::move(chimneyVeto)){
   
   }
   
   template <class T>
   bool PairSelector<T>::tag(const CosmogenicHunter::CandidatePair<T>& candidatePair) const{
     
-    return candidatePair.getPrompt().hasVisibleEnergyWithin(promptEnergyBounds) && !(candidatePair.isVetoed(promptInnerVetoThreshold) || candidatePair.isPoorlyReconstructed(reconstructionCutParameters) || candidatePair.isBufferMuon(bufferMuonCutParameters) || candidatePair.isStoppingMuon(minChimneyInconsistencyRatio));
+    return candidatePair.getPrompt().hasVisibleEnergyWithin(promptEnergyBounds) && !(candidatePair.isVetoed(promptInnerVetoThreshold) || candidatePair.isPoorlyReconstructed(reconstructionCutParameters) || candidatePair.isBufferMuon(bufferMuonCutParameters) || candidatePair.isStoppingMuon(chimneyVeto));
     
   }
   
