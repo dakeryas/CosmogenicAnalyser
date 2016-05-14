@@ -99,6 +99,20 @@ namespace CosmogenicAnalyser{
     
   }
   
+  template <class T>
+  std::ostream& operator<<(std::ostream& output, const PairSelector<T>& pairSelector){
+    
+    if(!pairSelector.getVetoes().empty()){
+    
+      for(auto it = pairSelector.getVetoes().begin(); it != pairSelector.getVetoes().end() - 1; ++it) output<<**it<<"\n"<<std::string(36, '=')<<"\n";
+      output<<(**(pairSelector.getVetoes().end() - 1));
+      
+    }
+    
+    return output;;
+    
+  }
+  
 }
 
 #endif
