@@ -59,7 +59,7 @@ int main(int argc, char* argv[]){
   bpo::options_description optionDescription("CosmogenicAnalyser usage");
   optionDescription.add_options()
   ("help,h", "Display this help message")
-  ("target,t", bpo::value<boost::filesystem::path>(&targetPath)->required(), "Path of the candidate tree to analyse")
+  ("target", bpo::value<boost::filesystem::path>(&targetPath)->required(), "Path of the candidate tree to analyse")
   ("output,o", bpo::value<boost::filesystem::path>(&outputPath)->required(), "Output file where to save the distributions")
   ("cosmogenic-densities,d", bpo::value<boost::filesystem::path>(&densitiesPath)->required(), "Path of the file containing the cosmogenic probability densities")
   ("cosmogenic-probability,p", bpo::value<double>(&cosmogenicProbability)->required(), "Probability to be a cosmogenic event")
