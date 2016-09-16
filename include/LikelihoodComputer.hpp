@@ -11,15 +11,15 @@ namespace CosmogenicAnalyser{
   
   class LikelihoodComputer{
     
-    double lithiumProbability;
+    double priorRatio;
     std::vector<std::unique_ptr<TH1>> probabilityDensities;
     
   public:
-    LikelihoodComputer(double lithiumProbability, const boost::filesystem::path& densitiesFilePath);
+    LikelihoodComputer(double priorRatio, const boost::filesystem::path& densitiesFilePath);
     template <class DensityIterator>
-    LikelihoodComputer(double lithiumProbability, DensityIterator densityBegin, DensityIterator densityEnd);
+    LikelihoodComputer(double priorRatio, DensityIterator densityBegin, DensityIterator densityEnd);
     template <class DensityContainer>
-    LikelihoodComputer(double lithiumProbability, const DensityContainer& probabilityDensities);
+    LikelihoodComputer(double priorRatio, const DensityContainer& probabilityDensities);
     LikelihoodComputer(const LikelihoodComputer& other);
     LikelihoodComputer(LikelihoodComputer&& other) = default;
     LikelihoodComputer& operator = (LikelihoodComputer other);
@@ -30,8 +30,8 @@ namespace CosmogenicAnalyser{
   };
   
   template <class DensityIterator>
-  LikelihoodComputer::LikelihoodComputer(double lithiumProbability, DensityIterator densityBegin, DensityIterator densityEnd)
-  :lithiumProbability(lithiumProbability){
+  LikelihoodComputer::LikelihoodComputer(double priorRatio, DensityIterator densityBegin, DensityIterator densityEnd)
+  :priorRatio(priorRatio){
 
     probabilityDensities.emplace_back(std::make_unique<typename DensityIterator::value_type>(Utility::getDistribution("muondist_sig", densityBegin, densityEnd)));
     probabilityDensities.emplace_back(std::make_unique<typename DensityIterator::value_type>(Utility::getDistribution("numNeutrons_sig", densityBegin, densityEnd)));
@@ -41,8 +41,8 @@ namespace CosmogenicAnalyser{
   }
   
   template <class DensityContainer>
-  LikelihoodComputer::LikelihoodComputer(double lithiumProbability, const DensityContainer& probabilityDensities)
-  :LikelihoodComputer(lithiumProbability, std::begin(probabilityDensities), std::end(probabilityDensities)){
+  LikelihoodComputer::LikelihoodComputer(double priorRatio, const DensityContainer& probabilityDensities)
+  :LikelihoodComputer(priorRatio, std::begin(probabilityDensities), std::end(probabilityDensities)){
     
   }
   
