@@ -44,7 +44,7 @@ namespace CosmogenicAnalyser{
 int main(int argc, char* argv[]){
  
   boost::filesystem::path targetPath, outputPath, densitiesPath;
-  double cosmogenicProbability;
+  double priorRatio;
   double timeBinWidth;
   CosmogenicAnalyser::TimeWindow onTimeWindow, offTimeWindow;
   CosmogenicHunter::MuonDefinition<float> muonDefinition;
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]){
   ("target", bpo::value<boost::filesystem::path>(&targetPath)->required(), "Path of the candidate tree to analyse")
   ("output,o", bpo::value<boost::filesystem::path>(&outputPath)->required(), "Output file where to save the distributions")
   ("cosmogenic-densities,d", bpo::value<boost::filesystem::path>(&densitiesPath)->required(), "Path of the file containing the cosmogenic probability densities")
-  ("cosmogenic-probability,p", bpo::value<double>(&cosmogenicProbability)->required(), "Probability to be a cosmogenic event")
+  ("prior-ratio,p", bpo::value<double>(&priorRatio)->required(), "Ratio of the cosmogenic prior to the accidental's")
   ("time-bin-width", bpo::value<double>(&timeBinWidth)->default_value(50), "Time bin width [ms]")
   ("ontime-window", bpo::value<CosmogenicAnalyser::TimeWindow>(&onTimeWindow)->required(), "On-time window (start : end) [ms]")
   ("offtime-window", bpo::value<CosmogenicAnalyser::TimeWindow>(&offTimeWindow)->required(), "Off-time window (start : end) [ms]")
@@ -129,7 +129,7 @@ int main(int argc, char* argv[]){
       if(arguments.count("pair-min-chimney-inconsistency")) pairSelector.emplaceVeto<CosmogenicHunter::ChimneyVeto<float>>(std::move(chimneyVeto));
       
       CosmogenicAnalyser::MuonShowerSelector<float> muonShowerSelector(muonDefinition, neutronMultiplicityThreshold);
-      CosmogenicAnalyser::LikelihoodComputer likelihoodComputer(cosmogenicProbability, densitiesPath);
+      CosmogenicAnalyser::LikelihoodComputer likelihoodComputer(priorRatio, densitiesPath);
       CosmogenicAnalyser::TimeDivision timeDivision{timeBinWidth, onTimeWindow, offTimeWindow};
       CosmogenicAnalyser::CandidateMuonPairAnalyser<float> candidateMuonPairAnalyser(likelihoodComputer, minCosmogenicLikelihood, timeDivision, {20, 0, 4e3}, {50, 0, 50}, {28, 0, 14});
       CosmogenicAnalyser::MuonShowerAnalyser muonShowerAnalyser({25, 0, 4000}, {100, 0, 10});
