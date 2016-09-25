@@ -61,13 +61,13 @@ namespace CosmogenicAnalyser{
 
   unsigned TimeDivision::getNumberOfBins() const{
 
-    return getAnalysisTime() / timeBinWidth;
+    return std::round(getAnalysisTime() / timeBinWidth);
     
   }
   
   unsigned TimeDivision::getSpannedNumberOfBins() const{
 
-    return getSpannedAnalysisTime() / timeBinWidth;
+    return std::round(getSpannedAnalysisTime() / timeBinWidth);
     
   }
   

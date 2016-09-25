@@ -74,7 +74,7 @@ namespace CosmogenicAnalyser{
     
     distributions[0].GetXaxis()->SetTitle("time to previous #mu (ms)");
     distributions[0].GetXaxis()->SetTitleOffset(1.2);
-    std::string yTitle = "Entries (/"+std::to_string(static_cast<unsigned>(distributions[0].GetBinWidth(1)))+"ms)";
+    std::string yTitle = "Entries (/"+std::to_string(static_cast<unsigned>(std::round(distributions[0].GetBinWidth(1))))+"ms)";
     distributions[0].GetYaxis()->SetTitle(yTitle.c_str());
     
   }
