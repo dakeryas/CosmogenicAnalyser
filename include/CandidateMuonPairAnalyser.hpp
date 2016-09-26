@@ -221,7 +221,7 @@ namespace CosmogenicAnalyser{
       }, 0, getSpannedAnalysisDuration(), 3);
       fitFunction.SetNpx(10*distributions[0].GetNbinsX());
       fitFunction.SetParameters(distributions[0].GetBinContent(1), numberOfNeutrinos, 0);
-      fitFunction.SetParNames("Cosmogenics", "Neutrinos", "Accidental rate");
+      fitFunction.SetParNames("Cosmogenics", "Accidentals", "Slope");
       
       TCanvas can{};//otherwise fitting triggers a TCanvas creating warning...
       auto fitResults = *distributions[0].Fit(&fitFunction, "QRS").Get();
@@ -231,7 +231,7 @@ namespace CosmogenicAnalyser{
 	{fitResults.Parameter(2), std::sqrt(fitResults.CovMatrix(2,2))},
 	{fitResults.Chi2(), fitResults.Ndf()}
       };
-      fitFunction.SetParameters(fitResults.Parameter(0), fitResults.Parameter(1));
+      fitFunction.SetParameters(fitResults.Parameter(0), fitResults.Parameter(1), fitResults.Parameter(2));
       
       return timeIntervalsFitResults;
       
