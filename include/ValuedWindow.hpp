@@ -17,7 +17,7 @@ namespace CosmogenicAnalyser{
     ValuedWindow(TimeWindow timeWindow);
     ValuedWindow(TimeWindow timeWindow, T value);
     virtual const T& getValue() const;
-    virtual void updateValue(const T& value) = 0;
+    virtual bool updateValue(const T& value) = 0;
     virtual void resetValue();//reset value to T{}
     virtual void print(std::ostream& output) const;
     
