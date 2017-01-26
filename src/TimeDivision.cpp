@@ -1,4 +1,5 @@
 #include "TimeDivision.hpp"
+#include <cmath>
 
 namespace CosmogenicAnalyser{
   

@@ -3,8 +3,9 @@
 
 #include <iostream>
 #include <iomanip>
+#include <vector>
 #include <stdexcept>
-#include <algorithm>
+#include <numeric>
 #include "boost/io/ios_state.hpp"
 #include "Utility.hpp"
 
